@@ -438,10 +438,12 @@
         } else if (mimeType.startsWith('video/')) {
             add('mp4', 'MP4 Video');
             add('mp3', 'Extract Audio (MP3)');
+            add('m4a', 'Extract Audio (M4A)');
             add('gif', 'Animated GIF');
         } else if (mimeType.startsWith('audio/')) {
             add('mp3', 'MP3 Audio');
             add('wav', 'WAV Audio');
+            add('m4a', 'M4A Audio');
         } else if (mimeType === 'application/pdf') {
              add('txt', 'Extract Text (Coming Soon)'); 
         }
@@ -502,7 +504,9 @@
                      throw new Error("Format not supported yet");
                 }
 
-                const filename = `converted_${item.id}.${targetFormat}`;
+                const originalName = item.file.name.substring(0, item.file.name.lastIndexOf('.')) || item.file.name;
+                const websiteUrl = window.location.hostname || "converter";
+                const filename = `${originalName}_converted_with_${websiteUrl}.${targetFormat}`;
                 const url = URL.createObjectURL(blob);
                 
                 const link = document.getElementById(`link-${item.id}`);
@@ -538,7 +542,8 @@
         const content = await zip.generateAsync({ type: "blob" });
         const url = URL.createObjectURL(content);
         const a = document.createElement('a');
-        a.href = url; a.download = "converted_batch.zip";
+        const websiteUrl = window.location.hostname || "converter";
+        a.href = url; a.download = `converted_batch_with_${websiteUrl}.zip`;
         document.body.appendChild(a); a.click(); document.body.removeChild(a);
         zipBtn.innerText = "📦 Download All as ZIP";
     });
@@ -601,7 +606,17 @@
         await ffmpeg.deleteFile(inputName); // Free memory in WASM space before copy
         const data = await ffmpeg.readFile(outputName);
         await ffmpeg.deleteFile(outputName); // Free memory in WASM space after copy
-        return new Blob([data.buffer], { type: format === 'mp3' ? 'audio/mp3' : `video/${format}` });
+        let mimeType;
+        if (format === 'mp3') {
+            mimeType = 'audio/mp3';
+        } else if (format === 'm4a') {
+            mimeType = 'audio/x-m4a';
+        } else if (format === 'gif') {
+            mimeType = 'image/gif';
+        } else {
+            mimeType = `video/${format}`;
+        }
+        return new Blob([data.buffer], { type: mimeType });
     }
 
     async function mergeAllToPDF() {
@@ -618,7 +633,8 @@
             pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
             updateStatus(item.id, 'done', 'Merged');
         }
-        pdf.save("merged-batch.pdf");
+        const websiteUrl = window.location.hostname || "converter";
+        pdf.save(`merged_batch_with_${websiteUrl}.pdf`);
     }
 
     function fileToDataURL(file) {
