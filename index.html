@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- 1. SEO Title & Description (Targeting "Free Batch" Traffic) -->
+    <title>Free Batch Image Converter | Unlimited & Offline (No Limits)</title>
+    <meta name="description" content="100% Free Batch Image Converter. Convert unlimited JPG, PNG, WebP, and PDF files at once. No daily limits, no watermarks, no server uploads. Works offline.">
+    
+    <!-- 2. Target Keywords -->
+    <meta name="keywords" content="free batch image converter, bulk image converter free, convert unlimited photos, offline converter, batch pdf merger free, no limit file converter">
+    
+    <!-- 3. Social Media Tags -->
+    <meta property="og:title" content="Free Batch Image Converter - Unlimited & Offline">
+    <meta property="og:description" content="Convert 100+ files at once directly in your browser. No server uploads.">
+    <meta property="og:type" content="website">
+    
+    <!-- 4. Google Rich Snippet (Signal: Price is $0) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Universal Batch Converter",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "Web Browser",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD",
+        "description": "Forever Free"
+      },
+      "featureList": "Unlimited Batch Conversion, Offline Privacy, No File Size Limits"
+    }
+    </script>
+
+    <style>
+        /* --- CSS VARIABLES --- */
+        :root {
+            --primary: #0070f3;
+            --error: #e00;
+            --success: #28a745;
+            --bg: #fafafa;
+            --surface: #ffffff;
+            --text: #333333;
+            --sub-text: #666666;
+            --border: #eaeaea;
+            --upload-bg: #f9f9f9;
+            --upload-border: #cccccc;
+            --hover-bg: #f0f7ff;
+            --card-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        [data-theme="dark"] {
+            --primary: #3291ff;
+            --error: #ff4d4f;
+            --success: #49aa19;
+            --bg: #111111;
+            --surface: #1a1a1a;
+            --text: #eeeeee;
+            --sub-text: #aaaaaa;
+            --border: #333333;
+            --upload-bg: #222222;
+            --upload-border: #444444;
+            --hover-bg: #1f2937;
+            --card-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        /* --- ANIMATIONS --- */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(-15px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; }
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); } to { transform: rotate(360deg); }
+        }
+
+        /* --- LAYOUT --- */
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            background: var(--bg); 
+            color: var(--text); 
+            display: flex; 
+            flex-direction: column; 
+            min-height: 100vh; 
+            margin: 0; 
+            transition: background 0.4s ease, color 0.4s ease;
+        }
+        
+        .container { max-width: 900px; margin: 40px auto; padding: 20px; flex: 1; width: 100%; box-sizing: border-box; }
+        
+        .card { 
+            background: var(--surface); 
+            padding: 40px; 
+            border-radius: 24px; 
+            box-shadow: var(--card-shadow); 
+            border: 1px solid var(--border); 
+            position: relative;
+            animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        h1 { margin-bottom: 5px; font-size: 1.8rem; text-align: center; letter-spacing: -0.5px; }
+        p.sub { color: var(--sub-text); margin-bottom: 30px; text-align: center; }
+
+        /* --- THEME TOGGLE --- */
+        .theme-btn {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            background: var(--upload-bg);
+            border: 1px solid var(--border);
+            font-size: 1.2rem;
+            cursor: pointer;
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            transition: 0.3s;
+        }
+        .theme-btn:hover { transform: scale(1.1); background: var(--hover-bg); }
+        .theme-btn.rotate { animation: spin 0.5s ease; }
+
+        /* --- UPLOAD ZONE --- */
+        .upload-zone { 
+            position: relative; 
+            border: 2px dashed var(--upload-border); 
+            background-color: var(--upload-bg); 
+            padding: 50px; 
+            border-radius: 16px; 
+            text-align: center; 
+            transition: all 0.3s ease; 
+            cursor: pointer; 
+        }
+        .upload-zone:hover { border-color: var(--primary); background: var(--hover-bg); transform: translateY(-2px); }
+        .upload-zone input { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+        .upload-icon { font-size: 3.5rem; margin-bottom: 15px; display: block; transition: transform 0.3s; }
+        .upload-zone:hover .upload-icon { transform: scale(1.1); }
+
+        /* --- UI ELEMENTS --- */
+        #mode-selector { 
+            display: none; margin: 25px 0; padding: 20px; 
+            background: var(--upload-bg); border-radius: 12px; text-align: center; 
+            border: 1px solid var(--border); animation: fadeInUp 0.4s ease-out;
+        }
+        .mode-btn { 
+            padding: 10px 20px; margin: 0 5px; cursor: pointer; 
+            background: var(--surface); color: var(--text);
+            border: 1px solid var(--border); border-radius: 8px; font-weight: 600; transition: 0.2s;
+        }
+        .mode-btn:hover { background: var(--hover-bg); transform: translateY(-1px); }
+        .mode-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+        #queue-area { margin-top: 30px; display: none; }
+        .queue-item { 
+            display: flex; align-items: center; 
+            background: var(--surface); border: 1px solid var(--border); 
+            padding: 15px 20px; margin-bottom: 12px; border-radius: 10px; gap: 15px; 
+            opacity: 0; animation: slideInRight 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        
+        .q-icon { font-size: 1.5rem; }
+        .q-info { flex: 1; overflow: hidden; }
+        .q-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
+        .q-status { font-size: 0.8rem; color: var(--sub-text); margin-top: 4px; }
+        
+        .badge { padding: 5px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+        .badge.pending { background: var(--upload-bg); color: var(--sub-text); border: 1px solid var(--border); }
+        .badge.processing { background: rgba(0, 112, 243, 0.1); color: var(--primary); animation: pulse 1.5s infinite; }
+        .badge.done { background: rgba(40, 167, 69, 0.1); color: var(--success); }
+        .badge.error { background: rgba(255, 0, 0, 0.1); color: var(--error); }
+
+        #controls { 
+            display: none; margin-top: 25px; text-align: center; 
+            padding: 25px; background: var(--upload-bg); border-radius: 16px; animation: fadeInUp 0.4s ease-out;
+        }
+        select { 
+            padding: 12px 16px; font-size: 1rem; border-radius: 8px; 
+            border: 1px solid var(--border); min-width: 200px; 
+            background: var(--surface); color: var(--text); outline: none;
+        }
+        button.main-btn { 
+            background: var(--primary); color: white; padding: 12px 30px; 
+            font-size: 1rem; border: none; border-radius: 8px; margin-left: 10px; font-weight: bold; cursor: pointer;
+        }
+        button.main-btn:disabled { background: var(--border); color: var(--sub-text); cursor: not-allowed; }
+
+        .download-btn { 
+            background: var(--success); color: white; padding: 8px 16px; 
+            border-radius: 6px; font-size: 0.85rem; display: none; text-decoration: none; font-weight: bold;
+            animation: fadeInUp 0.3s ease;
+        }
+
+        #zip-area { margin-top: 20px; text-align: center; display: none; animation: fadeInUp 0.5s ease; }
+        .zip-btn { 
+            background: var(--text); color: var(--bg); padding: 15px 40px; 
+            font-size: 1rem; border: none; border-radius: 10px; 
+            display: inline-flex; align-items: center; gap: 10px; font-weight: bold; cursor: pointer;
+        }
+        
+        footer { text-align: center; padding: 30px; font-size: 0.9rem; color: var(--sub-text); border-top: 1px solid var(--border); margin-top: auto; }
+        footer a { color: var(--text); text-decoration: none; margin: 0 10px; opacity: 0.7; }
+        footer a:hover { opacity: 1; text-decoration: underline; }
+    </style>
+    
+    <!-- Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <!-- Dark Mode Toggle -->
+        <button class="theme-btn" id="theme-toggle" title="Toggle Dark Mode">🌓</button>
+
+        <h1>Universal Batch Converter</h1>
+        <p class="sub">Convert multiple files at once. Private & Offline.</p>
+
+        <!-- Upload Area -->
+        <div class="upload-zone">
+            <span class="upload-icon">📂</span>
+            <strong>Click to Select Files</strong>
+            <p style="font-size:0.85rem; color:var(--sub-text); margin-top:8px;">
+                Images (Unlimited) • Audio/Video (Max 20, <75MB) • PDF (Max 15)
+            </p>
+            <input type="file" id="file-input" multiple accept="image/*,video/*,audio/*,.pdf">
+        </div>
+
+        <!-- Mode Selection -->
+        <div id="mode-selector">
+            <strong style="color:var(--text)">Multiple images detected:</strong><br><br>
+            <button class="mode-btn" onclick="setMode('batch')">Convert Separately</button>
+            <button class="mode-btn" onclick="setMode('merge')">Merge into 1 PDF</button>
+        </div>
+
+        <!-- Global Controls -->
+        <div id="controls">
+            <label>Convert All To: </label>
+            <select id="format-select"></select>
+            <button id="start-btn" class="main-btn">Start Conversion</button>
+        </div>
+
+        <!-- Batch Download Button -->
+        <div id="zip-area">
+            <button id="zip-btn" class="zip-btn">📦 Download All as ZIP</button>
+        </div>
+
+        <!-- Queue List -->
+        <div id="queue-area"></div>
+    </div>
+</div>
+
+<!-- SEO Content: Targeting "Free Batch" Keywords -->
+<div class="container" style="margin-top: 30px; text-align: left; color: var(--text);">
+    <div class="card">
+        <h2>The Only 100% Free Batch Image Converter</h2>
+        <p>Most online converters force you to pay if you want to convert more than 5 files at once. <strong>Universal Batch Converter</strong> is different. We offer <strong>Unlimited Batch Processing</strong> for free, directly in your browser.</p>
+        
+        <h3 style="margin-top: 25px;">Why we are better than the "Big" sites:</h3>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.9rem;">
+            <tr style="background: var(--upload-bg); border-bottom: 2px solid var(--border);">
+                <th style="padding: 10px; text-align: left;">Feature</th>
+                <th style="padding: 10px; text-align: left; color: var(--success);">Our Tool</th>
+                <th style="padding: 10px; text-align: left; opacity: 0.6;">Others</th>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border);">
+                <td style="padding: 10px;"><strong>Batch Limit</strong></td>
+                <td style="padding: 10px; font-weight: bold; color: var(--success);">Unlimited</td>
+                <td style="padding: 10px;">Max 5-10 files</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border);">
+                <td style="padding: 10px;"><strong>Price</strong></td>
+                <td style="padding: 10px; font-weight: bold; color: var(--success);">100% Free</td>
+                <td style="padding: 10px;">$9/mo for Pro</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border);">
+                <td style="padding: 10px;"><strong>Privacy</strong></td>
+                <td style="padding: 10px; font-weight: bold; color: var(--success);">Offline (Secure)</td>
+                <td style="padding: 10px;">Uploaded to Cloud</td>
+            </tr>
+        </table>
+
+        <h3 style="margin-top: 25px;">How to Bulk Convert Images for Free</h3>
+        <ol style="margin-left: 20px; line-height: 1.6;">
+            <li>Click <strong>"Select Files"</strong> and choose up to 100+ images (JPG, PNG, WebP).</li>
+            <li>Select your target format (e.g., <strong>"Convert All to PNG"</strong>).</li>
+            <li>Wait for the browser to process them instantly.</li>
+            <li>Click <strong>"Download All as ZIP"</strong> to save time.</li>
+        </ol>
+
+        <p style="margin-top: 20px; font-size: 0.9rem; opacity: 0.8;">
+            <em>Tags: free bulk image converter, convert 100 images to jpg, offline batch converter, unlimited pdf merger.</em>
+        </p>
+    </div>
+</div>
+
+<footer>
+    <p>100% Client-Side Privacy. No Server Uploads.</p>
+    <p>
+        <a href="contact.html">Contact</a> | 
+        <a href="feedback.html">Report Bug</a> | 
+        <a href="terms.html">Privacy</a>
+    </p>
+</footer>
+
+<!-- --- LOGIC ENGINE --- -->
+<script type="module">
+    import { FFmpeg } from 'https://unpkg.com/@ffmpeg/ffmpeg@0.12.10/dist/esm/index.js';
+    import { fetchFile, toBlobURL } from 'https://unpkg.com/@ffmpeg/util@0.12.1/dist/esm/index.js';
+
+    // --- DARK MODE LOGIC ---
+    const themeToggle = document.getElementById('theme-toggle');
+    const savedTheme = localStorage.getItem('theme');
+    
+    if (savedTheme === 'dark') {
+        document.body.setAttribute('data-theme', 'dark');
+        themeToggle.innerText = '☀️'; 
+    } else {
+        themeToggle.innerText = '🌑';
+    }
+
+    themeToggle.addEventListener('click', () => {
+        themeToggle.classList.add('rotate');
+        setTimeout(() => themeToggle.classList.remove('rotate'), 500);
+
+        if (document.body.getAttribute('data-theme') === 'dark') {
+            document.body.removeAttribute('data-theme');
+            localStorage.setItem('theme', 'light');
+            themeToggle.innerText = '🌑';
+        } else {
+            document.body.setAttribute('data-theme', 'dark');
+            localStorage.setItem('theme', 'dark');
+            themeToggle.innerText = '☀️';
+        }
+    });
+
+    // --- CONVERTER LOGIC ---
+    const MAX_VIDEO_SIZE = 75 * 1024 * 1024; 
+    const MAX_VIDEO_COUNT = 20;
+    const MAX_PDF_COUNT = 15;
+
+    let queue = [];
+    let completedBlobs = []; 
+    let ffmpeg = null;
+    let isProcessing = false;
+    let currentMode = 'batch';
+
+    const fileInput = document.getElementById('file-input');
+    const queueArea = document.getElementById('queue-area');
+    const controls = document.getElementById('controls');
+    const formatSelect = document.getElementById('format-select');
+    const startBtn = document.getElementById('start-btn');
+    const modeSelector = document.getElementById('mode-selector');
+    const zipArea = document.getElementById('zip-area');
+    const zipBtn = document.getElementById('zip-btn');
+
+    fileInput.addEventListener('change', (e) => {
+        const files = Array.from(e.target.files);
+        if (!files.length) return;
+
+        const videos = files.filter(f => f.type.startsWith('video/') || f.type.startsWith('audio/'));
+        const pdfs = files.filter(f => f.type === 'application/pdf');
+        
+        if (videos.length > MAX_VIDEO_COUNT) return alert(`Limit: ${MAX_VIDEO_COUNT} videos.`);
+        if (pdfs.length > MAX_PDF_COUNT) return alert(`Limit: ${MAX_PDF_COUNT} PDFs.`);
+
+        const validFiles = files.filter(file => {
+            if ((file.type.startsWith('video/') || file.type.startsWith('audio/')) && file.size > MAX_VIDEO_SIZE) {
+                alert(`Skipped "${file.name}": Too large (Max 75MB).`);
+                return false;
+            }
+            return true;
+        });
+
+        if (validFiles.length === 0) return;
+
+        queue = validFiles.map(f => ({ file: f, status: 'pending', id: Math.random().toString(36).substr(2, 9) }));
+        completedBlobs = [];
+        
+        queueArea.innerHTML = '';
+        queueArea.style.display = 'block';
+        controls.style.display = 'block';
+        zipArea.style.display = 'none';
+        modeSelector.style.display = 'none';
+        
+        startBtn.disabled = false;
+        startBtn.innerText = "Start Conversion"; 
+
+        queue.forEach((item, index) => renderQueueItem(item, index));
+
+        const imageCount = queue.filter(i => i.file.type.startsWith('image/')).length;
+        if (imageCount > 1 && imageCount === queue.length) {
+            modeSelector.style.display = 'block';
+            setMode('batch'); 
+        } else {
+            currentMode = 'batch';
+            populateOptions(queue[0].file.type);
+        }
+    });
+
+    window.setMode = (mode) => {
+        currentMode = mode;
+        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+        event.target.classList.add('active');
+        
+        if (mode === 'merge') {
+            formatSelect.innerHTML = '<option value="pdf">PDF Document (Merged)</option>';
+            formatSelect.disabled = true;
+        } else {
+            formatSelect.disabled = false;
+            populateOptions('image/jpeg'); 
+        }
+    };
+
+    function populateOptions(mimeType) {
+        formatSelect.innerHTML = '';
+        const add = (val, txt) => {
+            const opt = document.createElement('option');
+            opt.value = val; opt.innerText = txt;
+            formatSelect.appendChild(opt);
+        };
+
+        if (mimeType.startsWith('image/')) {
+            add('png', 'PNG Image');
+            add('jpeg', 'JPEG Image');
+            add('webp', 'WebP Image');
+            add('pdf', 'PDF Document (Individual)');
+        } else if (mimeType.startsWith('video/')) {
+            add('mp4', 'MP4 Video');
+            add('mp3', 'Extract Audio (MP3)');
+            add('gif', 'Animated GIF');
+        } else if (mimeType.startsWith('audio/')) {
+            add('mp3', 'MP3 Audio');
+            add('wav', 'WAV Audio');
+        } else if (mimeType === 'application/pdf') {
+             add('txt', 'Extract Text (Coming Soon)'); 
+        }
+    }
+
+    function renderQueueItem(item, index) {
+        const div = document.createElement('div');
+        div.className = 'queue-item';
+        div.id = `row-${item.id}`;
+        div.style.animationDelay = `${index * 0.05}s`;
+
+        div.innerHTML = `
+            <div class="q-icon">📄</div>
+            <div class="q-info">
+                <div class="q-name">${item.file.name}</div>
+                <div class="q-status"><span class="badge pending">Pending</span></div>
+            </div>
+            <a id="link-${item.id}" class="download-btn" download>Download</a>
+        `;
+        queueArea.appendChild(div);
+    }
+
+    function updateStatus(id, status, text) {
+        const row = document.getElementById(`row-${id}`);
+        if(row) {
+            const badge = row.querySelector('.badge');
+            badge.className = `badge ${status}`;
+            badge.innerText = text;
+        }
+    }
+
+    startBtn.addEventListener('click', async () => {
+        if (isProcessing) return;
+        isProcessing = true;
+        startBtn.disabled = true;
+        zipArea.style.display = 'none';
+        completedBlobs = [];
+        const targetFormat = formatSelect.value;
+
+        if (currentMode === 'merge') {
+            await mergeAllToPDF();
+            isProcessing = false;
+            startBtn.disabled = false;
+            startBtn.innerText = "Finished"; 
+            return;
+        }
+
+        for (const item of queue) {
+            updateStatus(item.id, 'processing', 'Processing...');
+            try {
+                let blob;
+                if (item.file.type.startsWith('image/')) {
+                    blob = await convertImage(item.file, targetFormat);
+                } else if (item.file.type.startsWith('video/') || item.file.type.startsWith('audio/')) {
+                    blob = await convertMedia(item.file, targetFormat);
+                } else {
+                     throw new Error("Format not supported yet");
+                }
+
+                const filename = `converted_${item.id}.${targetFormat}`;
+                const url = URL.createObjectURL(blob);
+                
+                const link = document.getElementById(`link-${item.id}`);
+                link.href = url;
+                link.download = filename;
+                link.style.display = 'inline-block';
+                updateStatus(item.id, 'done', 'Done');
+
+                completedBlobs.push({ name: filename, blob: blob });
+
+            } catch (err) {
+                console.error(err);
+                updateStatus(item.id, 'error', 'Failed');
+            }
+        }
+        
+        isProcessing = false;
+        startBtn.disabled = false;
+        startBtn.innerText = "Finished"; 
+
+        if (completedBlobs.length > 1) {
+            zipArea.style.display = 'block';
+        }
+    });
+
+    zipBtn.addEventListener('click', async () => {
+        if (completedBlobs.length === 0) return;
+        zipBtn.innerText = "Compressing...";
+        const zip = new JSZip();
+        completedBlobs.forEach(item => { zip.file(item.name, item.blob); });
+        const content = await zip.generateAsync({ type: "blob" });
+        const url = URL.createObjectURL(content);
+        const a = document.createElement('a');
+        a.href = url; a.download = "converted_batch.zip";
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        zipBtn.innerText = "📦 Download All as ZIP";
+    });
+
+    async function convertImage(file, format) {
+        if (format === 'pdf') {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF();
+            const imgData = await fileToDataURL(file);
+            const imgProps = pdf.getImageProperties(imgData);
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+            pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+            return pdf.output('blob');
+        }
+        const bitmap = await createImageBitmap(file);
+        const canvas = document.createElement('canvas');
+        canvas.width = bitmap.width; canvas.height = bitmap.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(bitmap, 0, 0);
+        return await new Promise(r => canvas.toBlob(r, `image/${format}`, 0.9));
+    }
+
+    async function convertMedia(file, format) {
+        if (!ffmpeg) {
+            ffmpeg = new FFmpeg();
+            const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm';
+            await ffmpeg.load({
+                coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
+                wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+            });
+        }
+        const inputName = 'input' + Math.random().toString(36).substr(2, 5);
+        const outputName = `output.${format}`;
+        await ffmpeg.writeFile(inputName, await fetchFile(file));
+        await ffmpeg.exec(['-i', inputName, outputName]);
+        const data = await ffmpeg.readFile(outputName);
+        await ffmpeg.deleteFile(inputName); await ffmpeg.deleteFile(outputName);
+        return new Blob([data.buffer], { type: `video/${format}` });
+    }
+
+    async function mergeAllToPDF() {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF();
+        for (let i = 0; i < queue.length; i++) {
+            const item = queue[i];
+            updateStatus(item.id, 'processing', 'Merging...');
+            const imgData = await fileToDataURL(item.file);
+            const imgProps = pdf.getImageProperties(imgData);
+            if (i > 0) pdf.addPage();
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+            pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+            updateStatus(item.id, 'done', 'Merged');
+        }
+        pdf.save("merged-batch.pdf");
+    }
+
+    function fileToDataURL(file) {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.readAsDataURL(file);
+        });
+    }
+</script>
+</body>
+</html>
