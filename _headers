@@ -1,6 +1,3 @@
-/*
-  Cross-Origin-Embedder-Policy: require-corp
-  Cross-Origin-Opener-Policy: same-origin
-
-
-/* --- kjfhkjdbhjdbfakj --- */
+# Netlify Headers Configuration
+# COOP/COEP headers are disabled because this app uses single-threaded client-side converters (like `@ffmpeg/core` single-threaded build).
+# This avoids blocking resources from third-party CDNs (such as blob URLs, JSZip, and jsPDF) under COEP.
