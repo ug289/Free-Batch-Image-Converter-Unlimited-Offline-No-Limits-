@@ -2,7 +2,7 @@
 /// No ES module imports — works as a classic Web Worker.
 
 // --- Inlined from const.js ---
-const CORE_URL = "https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.js";
+const CORE_URL = "https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/esm/ffmpeg-core.js";
 const FFMessageType = {
     LOAD: "LOAD",
     EXEC: "EXEC",
