@@ -353,6 +353,7 @@
     let ffmpeg = null;
     let isProcessing = false;
     let currentMode = 'batch';
+    let currentlyProcessingId = null;
 
     const fileInput = document.getElementById('file-input');
     const queueArea = document.getElementById('queue-area');
@@ -489,6 +490,7 @@
         }
 
         for (const item of queue) {
+            currentlyProcessingId = item.id;
             updateStatus(item.id, 'processing', 'Processing...');
             try {
                 let blob;
@@ -517,6 +519,7 @@
                 updateStatus(item.id, 'error', 'Failed');
             }
         }
+        currentlyProcessingId = null;
         
         isProcessing = false;
         startBtn.disabled = false;
@@ -565,6 +568,12 @@
             ffmpeg.on('log', ({ message }) => {
                 console.log("[FFmpeg Log]", message);
             });
+            ffmpeg.on('progress', ({ progress }) => {
+                if (currentlyProcessingId) {
+                    const percent = Math.min(100, Math.max(0, Math.round(progress * 100)));
+                    updateStatus(currentlyProcessingId, 'processing', `Processing (${percent}%)`);
+                }
+            });
             const baseURL = 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd';
             const workerURL = 'https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/esm/worker.js';
             try {
@@ -581,10 +590,17 @@
         const inputName = 'input' + Math.random().toString(36).substr(2, 5);
         const outputName = `output.${format}`;
         await ffmpeg.writeFile(inputName, await fetchFile(file));
-        await ffmpeg.exec(['-i', inputName, outputName]);
+        
+        if (format === 'mp4') {
+            await ffmpeg.exec(['-i', inputName, '-preset', 'ultrafast', outputName]);
+        } else {
+            await ffmpeg.exec(['-i', inputName, outputName]);
+        }
+        
+        await ffmpeg.deleteFile(inputName); // Free memory in WASM space before copy
         const data = await ffmpeg.readFile(outputName);
-        await ffmpeg.deleteFile(inputName); await ffmpeg.deleteFile(outputName);
-        return new Blob([data.buffer], { type: `video/${format}` });
+        await ffmpeg.deleteFile(outputName); // Free memory in WASM space after copy
+        return new Blob([data.buffer], { type: format === 'mp3' ? 'audio/mp3' : `video/${format}` });
     }
 
     async function mergeAllToPDF() {
