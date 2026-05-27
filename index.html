@@ -513,6 +513,7 @@
 
             } catch (err) {
                 console.error(err);
+                alert(`Conversion failed!\n\nError: ${err.message || err}\n\nPlease check the browser console for details.`);
                 updateStatus(item.id, 'error', 'Failed');
             }
         }
@@ -561,11 +562,19 @@
     async function convertMedia(file, format) {
         if (!ffmpeg) {
             ffmpeg = new FFmpeg();
-            const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.10/dist/umd';
-            await ffmpeg.load({
-                coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
-                wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+            ffmpeg.on('log', ({ message }) => {
+                console.log("[FFmpeg Log]", message);
             });
+            const baseURL = 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd';
+            try {
+                await ffmpeg.load({
+                    coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
+                    wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+                });
+            } catch (loadErr) {
+                console.error("FFmpeg engine failed to load:", loadErr);
+                throw new Error(`FFmpeg engine failed to load: ${loadErr.message || loadErr}`);
+            }
         }
         const inputName = 'input' + Math.random().toString(36).substr(2, 5);
         const outputName = `output.${format}`;
