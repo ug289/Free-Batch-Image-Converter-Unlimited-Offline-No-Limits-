@@ -128,6 +128,18 @@ To change the green buttons to another color (for example, a modern violet or da
 
 *Simply replace these hex codes, and the entire site's theme, borders, and buttons will adapt instantly!*
 
+### Unified Dark Mode Persistence
+The application uses the `theme` key in `localStorage` to synchronize dark/light modes across all pages. 
+* Toggling the theme via the button on the homepage (`index.html`) writes `theme: "dark"` or `theme: "light"` to the browser's storage.
+* The auxiliary pages (`contact.html`, `feedback.html`, `terms.html`) run an inline script block inside `<body>` to check and apply this setting immediately on load:
+  ```html
+  <script>
+      if (localStorage.getItem('theme') === 'dark') {
+          document.body.setAttribute('data-theme', 'dark');
+      }
+  </script>
+  ```
+
 ---
 
 ## ⚙️ How to Add New File Formats
@@ -220,10 +232,12 @@ const MAX_PDF_COUNT = 25;                 // Allow up to 25 PDFs
 ---
 
 ### 4. Updating Contact Emails
-To change the default support email address (`YOUR_EMAIL@gmail.com`), search and replace the string in the following files:
+To change the default support email address (`ug2898@gmail.com`), search and replace the string in the following files:
 *   [`contact.html`](file:///d:/converter%203.0/contact.html) (approx Line 19 and 20)
 *   [`feedback.html`](file:///d:/converter%203.0/feedback.html) (approx Line 17 and 18)
 
 
 
 https://share.google/aimode/rIzm4rlWnueGKm78o
+
+https://freebatchconvert.netlify.app/

@@ -5,19 +5,57 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contact Developer</title>
     <style>
-        body { font-family: -apple-system, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; text-align: center; }
+        :root {
+            --bg: #fafafa;
+            --text: #333333;
+            --sub-text: #666666;
+            --surface: #ffffff;
+            --border: #eaeaea;
+            --btn-bg: #000000;
+            --btn-text: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            --bg: #111111;
+            --text: #eeeeee;
+            --sub-text: #aaaaaa;
+            --surface: #1a1a1a;
+            --border: #333333;
+            --btn-bg: #ffffff;
+            --btn-text: #000000;
+        }
+
+        body { 
+            font-family: -apple-system, sans-serif; 
+            max-width: 600px; 
+            margin: 40px auto; 
+            padding: 20px; 
+            text-align: center; 
+            background: var(--bg);
+            color: var(--text);
+            transition: background 0.4s ease, color 0.4s ease;
+        }
         .btn { display: block; width: 100%; max-width: 300px; margin: 15px auto; padding: 15px 20px; text-decoration: none; border-radius: 8px; font-weight: bold; color: #fff; transition: opacity 0.2s; }
-        .btn-primary { background: #000; }
+        .btn-primary { background: var(--btn-bg); color: var(--btn-text); }
         .btn-gmail { background: #DB4437; }
         .btn:hover { opacity: 0.9; }
-        .back-link { display: block; margin-top: 30px; color: #666; }
+        .back-link { display: block; margin-top: 30px; color: var(--sub-text); text-decoration: none; }
+        .back-link:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
+    <script>
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.setAttribute('data-theme', 'dark');
+        }
+    </script>
     <h1>Contact Support</h1>
     <p>Found a bug or have a feature request? Send me an email.</p>
-    <a href="mailto:YOUR_EMAIL@gmail.com?subject=Converter%20App%20Feedback" class="btn btn-primary">Send via Default Mail App</a>
-    <a href="https://mail.google.com/mail/?view=cm&fs=1&to=YOUR_EMAIL@gmail.com&su=Converter%20App%20Feedback" target="_blank" class="btn btn-gmail">Open in Gmail</a>
+    <a href="mailto:ug2898@gmail.com?subject=Converter%20App%20Feedback" class="btn btn-primary">Send via Default Mail App</a>
+    <a href="https://mail.google.com/mail/?view=cm&fs=1&to=ug2898@gmail.com&su=Converter%20App%20Feedback" target="_blank" class="btn btn-gmail">Open in Gmail</a>
     <a href="index.html" class="back-link">← Back to Converter</a>
+    <p style="margin-top: 40px; font-size: 0.8rem; letter-spacing: 0.5px; opacity: 0.6; color: var(--sub-text);">
+        Created & Crafted with ❤️ by <span style="font-weight: 600;">KANHA</span>
+    </p>
 </body>
 </html>

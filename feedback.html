@@ -5,17 +5,70 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Feedback & Bug Report</title>
     <style>
-        body { font-family: -apple-system, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; text-align: center; }
-        .btn { display: block; padding: 15px 20px; text-decoration: none; border-radius: 8px; font-weight: bold; border: 1px solid #ddd; margin-bottom: 15px; }
-        .btn-bug { background: #FFF0F0; color: #D32F2F; }
-        .btn-idea { background: #F0F7FF; color: #1976D2; }
-        .back-link { display: block; margin-top: 40px; color: #888; }
+        :root {
+            --bg: #fafafa;
+            --text: #333333;
+            --sub-text: #666666;
+            --border: #eaeaea;
+            --bug-bg: #FFF0F0;
+            --bug-text: #D32F2F;
+            --bug-border: #ffcccc;
+            --idea-bg: #F0F7FF;
+            --idea-text: #1976D2;
+            --idea-border: #cce5ff;
+        }
+
+        [data-theme="dark"] {
+            --bg: #111111;
+            --text: #eeeeee;
+            --sub-text: #aaaaaa;
+            --border: #333333;
+            --bug-bg: #2D1414;
+            --bug-text: #FF6B6B;
+            --bug-border: #5A1E1E;
+            --idea-bg: #0E1E2E;
+            --idea-text: #64B5F6;
+            --idea-border: #1A365D;
+        }
+
+        body { 
+            font-family: -apple-system, sans-serif; 
+            max-width: 600px; 
+            margin: 40px auto; 
+            padding: 20px; 
+            text-align: center; 
+            background: var(--bg);
+            color: var(--text);
+            transition: background 0.4s ease, color 0.4s ease;
+        }
+        .btn { 
+            display: block; 
+            padding: 15px 20px; 
+            text-decoration: none; 
+            border-radius: 8px; 
+            font-weight: bold; 
+            margin-bottom: 15px; 
+            transition: opacity 0.2s;
+        }
+        .btn-bug { background: var(--bug-bg); color: var(--bug-text); border: 1px solid var(--bug-border); }
+        .btn-idea { background: var(--idea-bg); color: var(--idea-text); border: 1px solid var(--idea-border); }
+        .btn:hover { opacity: 0.9; }
+        .back-link { display: block; margin-top: 40px; color: var(--sub-text); text-decoration: none; }
+        .back-link:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
+    <script>
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.setAttribute('data-theme', 'dark');
+        }
+    </script>
     <h1>Help Us Improve</h1>
-    <a href="mailto:YOUR_EMAIL@gmail.com?subject=BUG REPORT: [Details]" class="btn btn-bug">🐞 Report a Bug</a>
-    <a href="mailto:YOUR_EMAIL@gmail.com?subject=FEEDBACK: [Idea]" class="btn btn-idea">💡 Suggest a Feature</a>
+    <a href="mailto:ug2898@gmail.com?subject=BUG REPORT: [Details]" class="btn btn-bug">🐞 Report a Bug</a>
+    <a href="mailto:ug2898@gmail.com?subject=FEEDBACK: [Idea]" class="btn btn-idea">💡 Suggest a Feature</a>
     <a href="index.html" class="back-link">← Back to Converter</a>
+    <p style="margin-top: 40px; font-size: 0.8rem; letter-spacing: 0.5px; opacity: 0.6; color: var(--sub-text);">
+        Created & Crafted with ❤️ by <span style="font-weight: 600;">KANHA</span>
+    </p>
 </body>
 </html>
