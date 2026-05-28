@@ -86,6 +86,9 @@ A vanilla, classic Web Worker script.
 *   [`contact.html`](file:///d:/converter%203.0/contact.html) & [`feedback.html`](file:///d:/converter%203.0/feedback.html): Support page forms using direct `mailto:` templates.
 *   [`terms.html`](file:///d:/converter%203.0/terms.html): Zero-knowledge security policy.
 
+### 5. Search Engine Optimization: [`sitemap.xml`](file:///d:/converter%203.0/sitemap.xml)
+*   Standard XML sitemap mapping the main page and auxiliary pages to help speed up Google crawler indexing.
+
 ---
 
 ## 🎨 Theme & Color Customization Guide
