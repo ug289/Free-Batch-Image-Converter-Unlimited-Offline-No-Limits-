@@ -86,6 +86,11 @@
             from { transform: rotate(0deg); } to { transform: rotate(360deg); }
         }
 
+        @keyframes progress-bar-stripes {
+            from { background-position: 1rem 0; }
+            to { background-position: 0 0; }
+        }
+
         /* --- LAYOUT --- */
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
@@ -521,7 +526,22 @@
             try {
                 let blob;
                 if (isImage(item.file)) {
-                    blob = await convertImage(item.file, targetFormat);
+                    // Start simulated progress indicator for image conversions (especially HEIC)
+                    let currentProgress = 0;
+                    const progressInterval = setInterval(() => {
+                        currentProgress += 5 + Math.random() * 10;
+                        if (currentProgress > 95) {
+                            currentProgress = 95;
+                            clearInterval(progressInterval);
+                        }
+                        updateStatus(item.id, 'processing', `Processing (${Math.round(currentProgress)}%)`);
+                    }, 200);
+
+                    try {
+                        blob = await convertImage(item.file, targetFormat);
+                    } finally {
+                        clearInterval(progressInterval);
+                    }
                 } else if (isVideo(item.file) || isAudio(item.file)) {
                     blob = await convertMedia(item.file, targetFormat);
                 } else {
@@ -671,13 +691,29 @@
         for (let i = 0; i < queue.length; i++) {
             const item = queue[i];
             updateStatus(item.id, 'processing', 'Merging...');
-            const imageFile = await preprocessImageFile(item.file);
-            const imgData = await fileToDataURL(imageFile);
-            const imgProps = pdf.getImageProperties(imgData);
-            if (i > 0) pdf.addPage();
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-            pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+            
+            // Start simulated progress for PDF merge
+            let currentProgress = 0;
+            const progressInterval = setInterval(() => {
+                currentProgress += 5 + Math.random() * 10;
+                if (currentProgress > 95) {
+                    currentProgress = 95;
+                    clearInterval(progressInterval);
+                }
+                updateStatus(item.id, 'processing', `Merging (${Math.round(currentProgress)}%)`);
+            }, 200);
+
+            try {
+                const imageFile = await preprocessImageFile(item.file);
+                const imgData = await fileToDataURL(imageFile);
+                const imgProps = pdf.getImageProperties(imgData);
+                if (i > 0) pdf.addPage();
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+                pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+            } finally {
+                clearInterval(progressInterval);
+            }
             updateStatus(item.id, 'done', 'Merged');
         }
         const websiteUrl = window.location.hostname || "converter";
