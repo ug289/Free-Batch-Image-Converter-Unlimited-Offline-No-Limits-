@@ -215,6 +215,7 @@
     <!-- Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
 </head>
 <body>
 
@@ -234,9 +235,9 @@
             <span class="upload-icon">📂</span>
             <strong>Click to Select Files</strong>
             <p style="font-size:0.85rem; color:var(--sub-text); margin-top:8px;">
-                Images (Unlimited) • Audio/Video (Max 20, <75MB) • PDF (Max 15)
+                Images (Unlimited, HEIC supported) • Audio/Video (Max 20, <75MB) • PDF (Max 15)
             </p>
-            <input type="file" id="file-input" multiple accept="image/*,video/*,audio/*,.pdf">
+            <input type="file" id="file-input" multiple accept="image/*,video/*,audio/*,.pdf,.heic,.heif">
         </div>
 
         <!-- Mode Selection -->
@@ -355,6 +356,12 @@
     const MAX_VIDEO_COUNT = 20;
     const MAX_PDF_COUNT = 15;
 
+    // Helper classification functions
+    const isImage = (file) => file && (file.type.startsWith('image/') || file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif'));
+    const isVideo = (file) => file && file.type.startsWith('video/');
+    const isAudio = (file) => file && file.type.startsWith('audio/');
+    const isPdf = (file) => file && file.type === 'application/pdf';
+
     let queue = [];
     let completedBlobs = []; 
     let ffmpeg = null;
@@ -372,17 +379,27 @@
     const zipBtn = document.getElementById('zip-btn');
 
     fileInput.addEventListener('change', (e) => {
-        const files = Array.from(e.target.files);
-        if (!files.length) return;
+        const rawFiles = Array.from(e.target.files);
+        if (!rawFiles.length) return;
 
-        const videos = files.filter(f => f.type.startsWith('video/') || f.type.startsWith('audio/'));
-        const pdfs = files.filter(f => f.type === 'application/pdf');
+        // 1. Alert for completely unsupported formats
+        const unsupportedFiles = rawFiles.filter(f => !isImage(f) && !isVideo(f) && !isAudio(f) && !isPdf(f));
+        if (unsupportedFiles.length > 0) {
+            const names = unsupportedFiles.map(f => f.name).join('\n');
+            alert(`The following file format(s) are not supported yet and will be added soon:\n\n${names}`);
+        }
+
+        // 2. Filter files to only supported formats
+        const supportedFiles = rawFiles.filter(f => isImage(f) || isVideo(f) || isAudio(f) || isPdf(f));
+
+        const videos = supportedFiles.filter(f => isVideo(f) || isAudio(f));
+        const pdfs = supportedFiles.filter(f => isPdf(f));
         
-        if (videos.length > MAX_VIDEO_COUNT) return alert(`Limit: ${MAX_VIDEO_COUNT} videos.`);
+        if (videos.length > MAX_VIDEO_COUNT) return alert(`Limit: ${MAX_VIDEO_COUNT} videos/audios.`);
         if (pdfs.length > MAX_PDF_COUNT) return alert(`Limit: ${MAX_PDF_COUNT} PDFs.`);
 
-        const validFiles = files.filter(file => {
-            if ((file.type.startsWith('video/') || file.type.startsWith('audio/')) && file.size > MAX_VIDEO_SIZE) {
+        const validFiles = supportedFiles.filter(file => {
+            if ((isVideo(file) || isAudio(file)) && file.size > MAX_VIDEO_SIZE) {
                 alert(`Skipped "${file.name}": Too large (Max 75MB).`);
                 return false;
             }
@@ -405,13 +422,13 @@
 
         queue.forEach((item, index) => renderQueueItem(item, index));
 
-        const imageCount = queue.filter(i => i.file.type.startsWith('image/')).length;
+        const imageCount = queue.filter(i => isImage(i.file)).length;
         if (imageCount > 1 && imageCount === queue.length) {
             modeSelector.style.display = 'block';
             setMode('batch'); 
         } else {
             currentMode = 'batch';
-            populateOptions(queue[0].file.type);
+            populateOptions(queue[0].file);
         }
     });
 
@@ -425,11 +442,11 @@
             formatSelect.disabled = true;
         } else {
             formatSelect.disabled = false;
-            populateOptions('image/jpeg'); 
+            populateOptions({ type: 'image/jpeg', name: '' }); 
         }
     };
 
-    function populateOptions(mimeType) {
+    function populateOptions(file) {
         formatSelect.innerHTML = '';
         const add = (val, txt) => {
             const opt = document.createElement('option');
@@ -437,21 +454,21 @@
             formatSelect.appendChild(opt);
         };
 
-        if (mimeType.startsWith('image/')) {
+        if (isImage(file)) {
             add('png', 'PNG Image');
             add('jpeg', 'JPEG Image');
             add('webp', 'WebP Image');
             add('pdf', 'PDF Document (Individual)');
-        } else if (mimeType.startsWith('video/')) {
+        } else if (isVideo(file)) {
             add('mp4', 'MP4 Video');
             add('mp3', 'Extract Audio (MP3)');
             add('m4a', 'Extract Audio (M4A)');
             add('gif', 'Animated GIF');
-        } else if (mimeType.startsWith('audio/')) {
+        } else if (isAudio(file)) {
             add('mp3', 'MP3 Audio');
             add('wav', 'WAV Audio');
             add('m4a', 'M4A Audio');
-        } else if (mimeType === 'application/pdf') {
+        } else if (isPdf(file)) {
              add('txt', 'Extract Text (Coming Soon)'); 
         }
     }
@@ -503,9 +520,9 @@
             updateStatus(item.id, 'processing', 'Processing...');
             try {
                 let blob;
-                if (item.file.type.startsWith('image/')) {
+                if (isImage(item.file)) {
                     blob = await convertImage(item.file, targetFormat);
-                } else if (item.file.type.startsWith('video/') || item.file.type.startsWith('audio/')) {
+                } else if (isVideo(item.file) || isAudio(item.file)) {
                     blob = await convertMedia(item.file, targetFormat);
                 } else {
                      throw new Error("Format not supported yet");
@@ -555,18 +572,40 @@
         zipBtn.innerText = "📦 Download All as ZIP";
     });
 
+    async function preprocessImageFile(file) {
+        if (file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif') || file.type === 'image/heic' || file.type === 'image/heif') {
+            try {
+                if (typeof heic2any === 'undefined') {
+                    throw new Error("HEIC conversion library is not loaded. Check internet connection.");
+                }
+                const convertedBlob = await heic2any({
+                    blob: file,
+                    toType: "image/jpeg",
+                    quality: 0.9
+                });
+                const finalBlob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
+                return new File([finalBlob], file.name.replace(/\.heic|\.heif/gi, '.jpg'), { type: 'image/jpeg' });
+            } catch (heicErr) {
+                console.error("HEIC conversion error:", heicErr);
+                throw new Error("Could not decode HEIC file: " + (heicErr.message || heicErr));
+            }
+        }
+        return file;
+    }
+
     async function convertImage(file, format) {
+        const imageFile = await preprocessImageFile(file);
         if (format === 'pdf') {
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF();
-            const imgData = await fileToDataURL(file);
+            const imgData = await fileToDataURL(imageFile);
             const imgProps = pdf.getImageProperties(imgData);
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
             pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
             return pdf.output('blob');
         }
-        const bitmap = await createImageBitmap(file);
+        const bitmap = await createImageBitmap(imageFile);
         const canvas = document.createElement('canvas');
         canvas.width = bitmap.width; canvas.height = bitmap.height;
         const ctx = canvas.getContext('2d');
@@ -632,7 +671,8 @@
         for (let i = 0; i < queue.length; i++) {
             const item = queue[i];
             updateStatus(item.id, 'processing', 'Merging...');
-            const imgData = await fileToDataURL(item.file);
+            const imageFile = await preprocessImageFile(item.file);
+            const imgData = await fileToDataURL(imageFile);
             const imgProps = pdf.getImageProperties(imgData);
             if (i > 0) pdf.addPage();
             const pdfWidth = pdf.internal.pageSize.getWidth();

@@ -6,8 +6,9 @@ A professional-grade, high-performance, and privacy-focused file converter that 
 
 ## 🚀 Key Features
 *   **Zero Server Uploads:** All conversions are processed locally on the user's CPU/GPU.
+*   **HEIC/HEIF Support:** Seamlessly converts proprietary Apple `.heic` and `.heif` photos into standard formats across all browsers using `heic2any`.
 *   **No File Limits:** Convert unlimited images without paywalls or daily restrictions.
-*   **Offline Mode:** Fully functional without an active internet connection after the initial page load.
+*   **Offline Mode:** Fully functional without an active internet connection after the initial page load (all engines run locally).
 *   **WebAssembly Powered:** High-performance media encoding/decoding via FFmpeg compiled to WASM.
 *   **Clean & Modern UI:** Fully responsive interface featuring sleek transitions, a responsive grid, and dark mode.
 
@@ -44,8 +45,8 @@ graph TD
 
 ### 3. Conversion Core Execution
 When the user clicks "Start Conversion":
-*   **Images:** Handled by `convertImage()`. It generates an in-memory bitmap of the image via `createImageBitmap()` and draws it onto a hidden HTML5 `<canvas>`. It then calls the browser's native `canvas.toBlob()` to re-export the image into `image/jpeg`, `image/png`, or `image/webp` format at a high quality factor (0.9).
-*   **PDF Merging:** Handled by `mergeAllToPDF()`. It converts uploaded images to Base64 URLs and embeds them page-by-page into a `jsPDF` document instance before triggering a save.
+*   **Images:** Handled by `convertImage()`. If the file is in HEIC/HEIF format, it is first preprocessed using `preprocessImageFile()`, which invokes the `heic2any` library to transcode the image into a standard JPEG Blob. The image is then drawn onto a hidden HTML5 `<canvas>` using `createImageBitmap()` and exported via `canvas.toBlob()` into PNG, JPEG, or WebP at a high quality factor (0.9).
+*   **PDF Merging:** Handled by `mergeAllToPDF()`. If any of the merged images are HEIC, they are also preprocessed into JPEG Blobs. The images are then converted to Base64 URLs and embedded page-by-page into a `jsPDF` document.
 *   **Video & Audio:** Handled by `convertMedia()`. Because video conversion is resource-intensive and can block the browser UI thread, it is delegated to a separate thread called a **Web Worker** (`ffmpeg-worker.js`). FFmpeg.wasm writes the raw file bytes to its virtual MEMFS filesystem, executes standard FFmpeg CLI commands (e.g. `ffmpeg -i input -preset ultrafast output.mp4`), and reads the completed output array back into a Javascript `Blob`.
 
 ### 4. Downloading the Outputs
