@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://freebatchconvert.netlify.app/sitemap.xml
